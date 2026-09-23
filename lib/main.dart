@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mapid_studycase/presentation/map/bloc/map_bloc.dart';
+import 'package:mapid_studycase/presentation/map/bloc/map_event.dart';
+import 'package:mapid_studycase/presentation/map/pages/map_page.dart';
 
 import 'core/di/injection.dart';
 
@@ -20,7 +24,10 @@ class MapidCaseStudyApp extends StatelessWidget {
     return MaterialApp(
       title: 'MAPID Case Study',
       debugShowCheckedModeBanner: false,
-      home: const Scaffold(body: Center(child: Text('MAPID Case Study'))),
+      home: BlocProvider(
+        create: (_) => sl<MapBloc>()..add(const MapLoadRequested()),
+        child: const MapPage(),
+      ),
     );
   }
 }

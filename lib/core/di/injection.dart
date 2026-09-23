@@ -6,6 +6,7 @@ import 'package:mapid_studycase/data/repositories/map_repository_impl.dart';
 import 'package:mapid_studycase/domain/repositories/map_repository.dart';
 import 'package:mapid_studycase/domain/usecase/get_map_layer.dart';
 import 'package:mapid_studycase/domain/usecase/get_user_location.dart';
+import 'package:mapid_studycase/presentation/map/bloc/map_bloc.dart';
 
 import '../network/dio_client.dart';
 
@@ -30,4 +31,7 @@ Future<void> configureDependencies() async {
   sl.registerLazySingleton<GetUserLocation>(
     () => GetUserLocation(repository: sl()),
   );
+
+  // Register BLoC
+  sl.registerFactory<MapBloc>(() => MapBloc(getMapLayer: sl()));
 }
