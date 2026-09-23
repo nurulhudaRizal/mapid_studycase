@@ -12,12 +12,16 @@ class MapLoadRequested extends MapEvent {
 }
 
 class MapFeatureTapped extends MapEvent {
-  final Map<String, dynamic> properties;
+  final String featureId;
 
-  const MapFeatureTapped(this.properties);
+  const MapFeatureTapped(this.featureId);
 
   @override
-  List<Object?> get props => [properties];
+  List<Object?> get props => [featureId];
+}
+
+class MapFeatureSelectionCleared extends MapEvent {
+  const MapFeatureSelectionCleared();
 }
 
 class MapRetryRequested extends MapEvent {

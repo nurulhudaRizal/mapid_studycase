@@ -20,25 +20,25 @@ class MapLoading extends MapState {
 
 class MapLoaded extends MapState {
   final List<MapFeature> features;
-  final UserLocation? userLocation;
+  final MapFeature? selectedFeature;
 
-  const MapLoaded({required this.features, this.userLocation});
+  const MapLoaded({required this.features, this.selectedFeature});
+
+  MapLoaded copyWith({
+    List<MapFeature>? features,
+    MapFeature? selectedFeature,
+    bool clearSelectedFeature = false,
+  }) {
+    return MapLoaded(
+      features: features ?? this.features,
+      selectedFeature: clearSelectedFeature
+          ? null
+          : selectedFeature ?? this.selectedFeature,
+    );
+  }
 
   @override
-  List<Object?> get props => [features, userLocation];
-}
-
-class MapFeatureSelected extends MapLoaded {
-  final Map<String, dynamic> properties;
-
-  const MapFeatureSelected({
-    required super.features,
-    super.userLocation,
-    required this.properties,
-  });
-
-  @override
-  List<Object?> get props => [...super.props, properties];
+  List<Object?> get props => [features, selectedFeature];
 }
 
 class MapError extends MapState {
