@@ -1,17 +1,62 @@
-# mapid_studycase
+# MAPID Mobile Developer Case Study
 
-A new Flutter project.
+Flutter mobile application for displaying GEO MAPID tourism data on an OpenFreeMap basemap.
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter application.
+- OpenFreeMap basemap
+- GEO MAPID tourism layer
+- Interactive tourism points
+- Feature information popup
+- Current user location
+- Loading and error handling
+- Retry mechanism
 
-A few resources to get you started if this is your first Flutter project:
+## Tech Stack
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+- Flutter
+- Dart
+- BLoC
+- Clean Architecture
+- GetIt
+- Dio
+- Flutter Dotenv
+- MapLibre GL
+- OpenFreeMap
+- Permission Handler
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Architecture
+
+The project uses a lightweight Clean Architecture approach.
+
+The application uses BLoC to separate UI from application state and business flow.
+
+The domain layer does not depend on Flutter, Dio, MapLibre or Geolocator.
+
+The data layer handles external API and device location implementations.
+
+MapLibre-specific rendering and interaction remain inside the presentation layer.
+
+## Environment Setup
+
+Create a .env file in the project root:
+
+```bash
+MAPID_API_KEY=YOUR_API_KEY
+MAPID_LAYER_ID=YOUR_LAYER_ID
+MAPID_PROJECT_ID=YOUR_PROJECT_ID
+```
+
+## Run
+```bash
+flutter pub get
+flutter run
+```
+
+## Build APK
+```bash
+flutter clean
+flutter pub get
+flutter analyze
+flutter build apk --release
+```
