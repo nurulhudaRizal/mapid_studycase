@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 
 import '../../../domain/entities/map_feature.dart';
-import '../../../domain/entities/user_location.dart';
 
 abstract class MapState extends Equatable {
   const MapState();

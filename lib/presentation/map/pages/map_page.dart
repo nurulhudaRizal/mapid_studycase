@@ -2,9 +2,11 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mapid_studycase/core/permissions/location_permission_service.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 
 import '../../../core/constants/app_constants.dart';
+import '../../../core/di/injection.dart';
 import '../../../core/utils/map_geojson.dart';
 import '../../../domain/entities/map_feature.dart';
 import '../bloc/map_bloc.dart';
@@ -30,6 +32,19 @@ class _MapPageState extends State<MapPage> {
   static const String _sourceId = 'mapid-tourism-source';
   static const String _layerId = 'mapid-tourism-layer';
 
+  late final LocationPermissionService _locationPermissionService;
+
+  bool _locationPermissionGranted = false;
+
+  UserLocation? userLocation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _locationPermissionService = sl<LocationPermissionService>();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,17 +67,20 @@ class _MapPageState extends State<MapPage> {
           children: [
             MapLibreMap(
               styleString: AppConstants.openFreeMapStyleUrl,
-
               initialCameraPosition: const CameraPosition(
                 target: LatLng(-7.797068, 110.370529),
                 zoom: 12,
               ),
-
-              myLocationEnabled: true,
-
+              myLocationEnabled: _locationPermissionGranted,
+              myLocationTrackingMode: MyLocationTrackingMode.tracking,
+              myLocationRenderMode: MyLocationRenderMode.normal,
               onMapCreated: _onMapCreated,
-
               onStyleLoadedCallback: _onStyleLoaded,
+              onUserLocationUpdated: (location) {
+                setState(() {
+                  userLocation = location;
+                });
+              },
             ),
 
             _buildLoadingOverlay(),
@@ -70,6 +88,8 @@ class _MapPageState extends State<MapPage> {
             _buildErrorOverlay(),
 
             _buildEmptyOverlay(),
+
+            _buildLocationButton(),
           ],
         ),
       ),
@@ -212,6 +232,25 @@ class _MapPageState extends State<MapPage> {
   }
 
   // ---------------------------------------------------------------------------
+  // USER LOCATION
+  // ---------------------------------------------------------------------------
+
+  Future<void> _moveToUserLocation(UserLocation userLocation) async {
+    final controller = _mapController;
+
+    if (controller == null || !_locationPermissionGranted) {
+      return;
+    }
+
+    await controller.animateCamera(
+      CameraUpdate.newLatLngZoom(
+        LatLng(userLocation.position.latitude, userLocation.position.longitude),
+        15,
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
   // LOADING
   // ---------------------------------------------------------------------------
 
@@ -324,6 +363,34 @@ class _MapPageState extends State<MapPage> {
   }
 
   // ---------------------------------------------------------------------------
+  // LOCATION BUTTON
+  // ---------------------------------------------------------------------------
+
+  Widget _buildLocationButton() {
+    return Positioned(
+      right: 16,
+      bottom: 100,
+      child: FloatingActionButton(
+        heroTag: 'location-button',
+        onPressed: () async {
+          await _requestLocationPermission();
+          if (userLocation == null || !_locationPermissionGranted) {
+            debugPrint(
+              'User location is not available or permission not granted.',
+            );
+            return;
+          }
+          debugPrint(
+            'Moving to user location: ${userLocation!.position.latitude}, ${userLocation!.position.longitude}',
+          );
+          _moveToUserLocation(userLocation!);
+        },
+        child: const Icon(Icons.my_location),
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
   // RESET MAP LAYER
   // ---------------------------------------------------------------------------
 
@@ -344,6 +411,17 @@ class _MapPageState extends State<MapPage> {
 
     _layerRendered = false;
     _selectedFeatureId = null;
+  }
+
+  Future<void> _requestLocationPermission() async {
+    final granted = await _locationPermissionService
+        .requestLocationPermission();
+
+    if (!mounted) return;
+
+    setState(() {
+      _locationPermissionGranted = granted;
+    });
   }
 
   // ---------------------------------------------------------------------------
